@@ -34,7 +34,7 @@ Navigate to [http://localhost:9000](http://localhost:9000) to see details, like 
 
 ### Create an Java POJO to send to Kafka as JSON
 
-A JSON message can be sent over Kafka to provide helpful details to a consumer. Create a Java `record` in the `com.example.demo` package called `Event` that has a `message` field. This class with act as the data transfer object (DTO).
+A JSON message can be sent over Kafka to provide helpful details to a consumer. Create a Java `record` in the `com.example.demo` package called `Event` that has a `message` field. This class will act as the data transfer object (DTO).
 
 ### Create a Spring Cloud Stream Consumer
 
@@ -94,6 +94,7 @@ Define a Spring Cloud Stream function that consumes a batch of `Event` messages,
             group: group-name
             destination: event-input
             consumer:
+               batch-mode: true
                 max-attempts: 1
                 use-native-decoding: true
           eventProcessor-out-0:

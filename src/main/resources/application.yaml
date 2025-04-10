@@ -1,0 +1,59 @@
+spring:
+    cloud:
+        function:
+            definition: eventListener;eventProcessor;dlqEventListener;
+        stream:
+            bindings:
+                eventListener-in-0:
+                    group: nowell-test
+                    destination: nowell-batch-out
+                    consumer:
+                        max-attempts: 1
+                        use-native-decoding: true
+                eventProcessor-in-0:
+                    group: nowell-test
+                    destination: nowell-batch-in
+                    consumer:
+                        batch-mode: true
+                        max-attempts: 1
+                        use-native-decoding: true
+                eventProcessor-out-0:
+                    destination: nowell-batch-out
+                    producer:
+                        use-native-encoding: true
+                dlqEventListener-in-0:
+                    group: nowell-test
+                    destination: nowell-batch-dlq
+                    consumer:
+                        max-attempts: 1
+                        use-native-decoding: true
+            kafka:
+                binder:
+                    brokers: localhost:9092
+                bindings:
+                    eventListener-in-0:
+                        consumer:
+                            configuration:
+                                value.deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+                                spring.json.trusted.packages: com.example.demo
+                    eventProcessor-in-0:
+                        enable-dlq: true
+                        dlq-name: nowell-batch-dlq
+                        dlq-producer-properties:
+                            configuration:
+                                key.serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+                                value.serializer: org.springframework.kafka.support.serializer.JsonSerializer
+                        consumer:
+                            configuration:
+                                value.deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+                                spring.json.trusted.packages: com.example.demo
+                    eventProcessor-out-0:
+                        producer:
+                            configuration:
+                                value.serializer: org.springframework.kafka.support.serializer.JsonSerializer
+                    dlqEventListener-in-0:
+                        consumer:
+                            configuration:
+                                value.deserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+                                spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+                                spring.json.trusted.packages: com.example.demo
